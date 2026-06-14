@@ -1,0 +1,19 @@
+# site historian tag  ->  canonical variable
+variables:
+  - { variable: "T_hot_in",   quantity: "temperature", unit: "degC", asset_ref: "HX-101", source_tag: "HX101.TI.201" }
+  - { variable: "T_hot_out",  quantity: "temperature", unit: "degC", asset_ref: "HX-101", source_tag: "HX101.TI.202" }
+  - { variable: "T_cold_in",  quantity: "temperature", unit: "degC", asset_ref: "HX-101", source_tag: "HX101.TI.203" }
+  - { variable: "T_cold_out", quantity: "temperature", unit: "degC", asset_ref: "HX-101", source_tag: "HX101.TI.204" }
+  - { variable: "F_hot",      quantity: "mass_flow",   unit: "kg/h", asset_ref: "HX-101", source_tag: "HX101.FI.210" }
+  - { variable: "F_cold",     quantity: "mass_flow",   unit: "kg/h", asset_ref: "HX-101", source_tag: "HX101.FI.211" }
+  - { variable: "dP_shell",   quantity: "pressure",    unit: "bar",  asset_ref: "HX-101", source_tag: "HX101.PDI.220" }
+  - variable: "U_overall"
+    quantity: "heat_transfer_coefficient"
+    unit: "W/m2K"
+    asset_ref: "HX-101"
+    derivation: "duty_LMTD(T_hot_in,T_hot_out,T_cold_in,T_cold_out,F_hot,area_m2)"
+  - variable: "Rf"
+    quantity: "fouling_resistance"
+    unit: "m2K/W"
+    asset_ref: "HX-101"
+    derivation: "1/U_overall - 1/U_clean"

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oipf.dev/schemas/model-contract.schema.json",
+  "title": "OIPF Model Contract",
+  "type": "object",
+  "required": ["model_ref", "version", "inputs", "outputs"],
+  "properties": {
+    "model_ref": { "type": "string", "description": "Opaque pointer to the proprietary model/runtime" },
+    "version": { "type": "string" },
+    "kind": { "type": "string", "enum": ["physics", "ml", "hybrid"], "default": "hybrid" },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["variable"],
+        "properties": {
+          "variable": { "type": "string", "description": "canonical variable from tag-map" },
+          "window": { "type": "string", "description": "ISO-8601 duration, e.g. PT24H" },
+          "required": { "type": "boolean", "default": true }
+        },
+        "additionalProperties": false
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["scalar", "trajectory", "class", "recommendation"] },
+          "unit": { "type": "string" },
+          "range": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+          "confidence": { "type": "boolean", "description": "model emits a confidence for this output" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "validity": {
+      "type": "object",
+      "description": "input ranges within which outputs are trusted",
+      "additionalProperties": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 }
+    }
+  },
+  "additionalProperties": false
+}

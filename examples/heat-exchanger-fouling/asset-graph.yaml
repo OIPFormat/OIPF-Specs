@@ -1,0 +1,11 @@
+nodes:
+  - { id: "PLANT-A",       kind: "site",   name: "Plant A" }
+  - { id: "HEAT-RECOVERY", kind: "area",   name: "Heat Recovery", parent: "PLANT-A" }
+  - { id: "HRS-1",         kind: "system", name: "Heat Recovery System 1", parent: "HEAT-RECOVERY" }
+  - { id: "HX-101",        kind: "asset",  name: "Shell-and-tube exchanger HX-101", parent: "HRS-1",
+      isa95_role: "equipment-module",
+      attributes: { type: "shell-and-tube", area_m2: 180, U_clean_W_m2K: 850 } }
+flows:
+  - { from: "HRS-1", to: "HX-101", medium: "material", name: "Hot process stream" }
+  - { from: "HX-101", to: "HRS-1", medium: "material", name: "Cold feed (preheated)" }
+  - { from: "HX-101", to: "HRS-1", medium: "energy",   name: "Recovered heat" }

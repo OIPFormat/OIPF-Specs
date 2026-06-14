@@ -1,0 +1,21 @@
+oipf: "0.1.0"
+id: "dev.oipf.heat-exchanger-fouling"
+version: "0.1.0"
+title: "Heat-Exchanger Fouling / Cleaning Optimisation"
+description: >
+  Predicts fouling of a shell-and-tube heat exchanger and recommends the optimal
+  cleaning date as a prepared, approve-to-execute CMMS work order.
+domain: "manufacturing"
+maturity: "L2"
+conformance: "Plus"
+authors: ["OIPF reference examples"]
+tags: ["fouling", "cleaning", "heat-exchanger", "energy"]
+objects:
+  asset-graph: "asset-graph.yaml"
+  tag-map: "tag-map.yaml"
+  states-events: "states-events.yaml"
+  constraints: "constraints.yaml"
+  model-contract: "model-contract.yaml"
+  workflow: "workflow.yaml"
+  savings: "savings.yaml"
+  validation-tests: "validation-tests.yaml"

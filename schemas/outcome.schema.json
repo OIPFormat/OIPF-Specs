@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oipf.dev/schemas/outcome.schema.json",
+  "title": "OIPF Outcome Ledger Entry",
+  "type": "object",
+  "required": ["decision_ref", "disposition", "provenance"],
+  "properties": {
+    "decision_ref": { "type": "string" },
+    "disposition": { "type": "string", "enum": ["accepted", "rejected", "modified"] },
+    "action_taken": { "type": "string" },
+    "measured_result": { "type": "object", "description": "observed KPI deltas after the action" },
+    "attributed_saving": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "examples": ["EUR", "kWh", "kg"] },
+        "method": { "type": "string", "description": "reference into savings.yaml" }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["model_version", "actor", "timestamp"],
+      "properties": {
+        "model_version": { "type": "string" },
+        "data_window": { "type": "string" },
+        "actor": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "signature": { "type": "string", "description": "DID/VC signature (conformance: Signed)" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

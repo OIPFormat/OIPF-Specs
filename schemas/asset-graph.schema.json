@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oipf.dev/schemas/asset-graph.schema.json",
+  "title": "OIPF Asset Graph",
+  "type": "object",
+  "required": ["nodes"],
+  "properties": {
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind"],
+        "properties": {
+          "id": { "type": "string" },
+          "kind": { "type": "string", "enum": ["site", "area", "system", "unit", "asset"] },
+          "name": { "type": "string" },
+          "parent": { "type": "string", "description": "id of parent node" },
+          "isa95_role": { "type": "string", "description": "optional ISA-95/IEC 62264 role hint" },
+          "attributes": { "type": "object" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "flows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "medium"],
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "medium": { "type": "string", "enum": ["material", "water", "energy", "steam", "chemical", "gas"] },
+          "name": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

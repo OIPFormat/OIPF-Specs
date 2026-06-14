@@ -1,0 +1,10 @@
+# runtime / local
+*.log
+.DS_Store
+node_modules/
+__pycache__/
+.venv/
+dist/
+build/
+# local outcome ledgers (signed records are environment-specific)
+**/outcome-ledger.local.*

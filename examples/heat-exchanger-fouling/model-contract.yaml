@@ -1,0 +1,15 @@
+model_ref: "proprietary://models/hx-fouling@v2"
+version: "2.0.0"
+kind: "hybrid"           # physics (fouling growth) + ml (residual correction)
+inputs:
+  - { variable: "U_overall", window: "PT72H", required: true }
+  - { variable: "Rf",        window: "PT72H", required: true }
+  - { variable: "F_hot",     window: "PT72H", required: false }
+  - { variable: "dP_shell",  window: "PT72H", required: false }
+outputs:
+  - { name: "Rf_trajectory", type: "trajectory", unit: "m2K/W", confidence: true }
+  - { name: "clean_by_date", type: "recommendation", confidence: true }
+  - { name: "energy_penalty_now", type: "scalar", unit: "kW", confidence: false }
+validity:
+  U_overall: [200, 1200]      # W/m2K — outputs trusted only in this range
+  Rf: [0, 0.0015]

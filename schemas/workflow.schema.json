@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oipf.dev/schemas/workflow.schema.json",
+  "title": "OIPF Decision Workflow",
+  "description": "UAPF-profiled, human-in-the-loop, auditable decision flow",
+  "type": "object",
+  "required": ["decision", "steps"],
+  "properties": {
+    "decision": {
+      "type": "object",
+      "required": ["action", "reason", "predicted_impact"],
+      "properties": {
+        "action": { "type": "string" },
+        "reason": { "type": "string" },
+        "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
+        "predicted_impact": { "type": "string", "description": "reference into savings.yaml or inline" },
+        "valid_until": { "type": "string", "description": "ISO-8601 duration or timestamp" }
+      },
+      "additionalProperties": false
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string", "enum": ["explain", "approve", "act", "record", "feedback"] },
+          "actor": { "type": "string", "description": "role, e.g. process-engineer, operator, agent" },
+          "target": { "type": "string", "description": "e.g. CMMS work order, setpoint, notification" },
+          "on_timeout": { "type": "string", "enum": ["escalate", "expire", "auto-reject"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "exceptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["when", "do"],
+        "properties": {
+          "when": { "type": "string" },
+          "do": { "type": "string", "enum": ["block", "escalate", "fallback"] }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,18 @@
+decision:
+  action: "Schedule cleaning of HX-101"
+  reason: "Rf is projected to cross Rf_max within the lead time; energy penalty rising."
+  confidence: "high"
+  predicted_impact: "savings.yaml#net_saving"
+  valid_until: "P14D"
+steps:
+  - { id: "explain",  type: "explain",  actor: "process-engineer",
+      target: "show Rf trajectory, projected cross date, energy penalty, recommended slot" }
+  - { id: "approve",  type: "approve",  actor: "process-engineer", on_timeout: "escalate" }
+  - { id: "act",      type: "act",      actor: "agent",
+      target: "create CMMS work order for HX-101 cleaning in next available cleaning_window" }
+  - { id: "record",   type: "record",   actor: "agent", target: "outcome ledger" }
+  - { id: "feedback", type: "feedback", actor: "agent",
+      target: "compare post-clean Rf reset vs. predicted; recalibrate model" }
+exceptions:
+  - { when: "constraints.isolate_before_clean not confirmed", do: "block" }
+  - { when: "confidence == low", do: "escalate" }

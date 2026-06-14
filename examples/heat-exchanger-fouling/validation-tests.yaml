@@ -1,0 +1,7 @@
+tests:
+  - { id: "tags-present",   assert: "all required model-contract inputs resolve in tag-map", severity: "blocker" }
+  - { id: "refs-resolve",   assert: "every tag-map asset_ref exists in asset-graph",         severity: "blocker" }
+  - { id: "U-sanity",       assert: "median(U_overall) within [200,1200] W/m2K over last 30d", severity: "blocker" }
+  - { id: "Rf-monotonic",   assert: "Rf non-decreasing between cleaning_performed events (tol 5%)", severity: "warn" }
+  - { id: "clean-backtest", assert: "model clean_by_date MAE <= 5 days on last 4 cleaning cycles", severity: "warn" }
+  - { id: "maturity-ok",    assert: "constraints.yaml present (required for L2)",              severity: "blocker" }

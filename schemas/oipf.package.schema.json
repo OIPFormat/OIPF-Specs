@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oipf.dev/schemas/oipf.package.schema.json",
+  "title": "OIPF Package Manifest",
+  "type": "object",
+  "required": ["oipf", "id", "version", "title", "domain", "maturity", "conformance", "objects"],
+  "properties": {
+    "oipf": { "type": "string", "description": "OIPF spec version", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "id": { "type": "string", "description": "Reverse-DNS package id", "examples": ["dev.oipf.heat-exchanger-fouling"] },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "domain": { "type": "string", "enum": ["manufacturing", "chemicals", "food-beverage", "pulp-paper", "pharma", "metals", "water", "energy", "generic"] },
+    "maturity": { "type": "string", "enum": ["L0", "L1", "L2", "L3", "L4"], "description": "Maximum deployment maturity level supported" },
+    "conformance": { "type": "string", "enum": ["Core", "Plus", "Signed"] },
+    "authors": { "type": "array", "items": { "type": "string" } },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "objects": {
+      "type": "object",
+      "required": ["asset-graph", "tag-map", "model-contract", "workflow"],
+      "properties": {
+        "asset-graph": { "type": "string" },
+        "tag-map": { "type": "string" },
+        "states-events": { "type": "string" },
+        "constraints": { "type": "string" },
+        "model-contract": { "type": "string" },
+        "workflow": { "type": "string" },
+        "savings": { "type": "string" },
+        "validation-tests": { "type": "string" }
+      },
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  "patternProperties": { "^x-": {} },
+  "additionalProperties": false
+}

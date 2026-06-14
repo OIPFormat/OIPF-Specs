@@ -1,0 +1,13 @@
+operational:
+  - { id: "Rf_max",  variable: "Rf",       limit: 0.00060, comparator: "<=", unit: "m2K/W",
+      severity: "high",   on_violation: "escalate", note: "mandatory clean above this" }
+  - { id: "dP_max",  variable: "dP_shell", limit: 0.85,    comparator: "<=", unit: "bar",
+      severity: "medium", on_violation: "warn" }
+quality:
+  - { id: "min_preheat", variable: "T_cold_out", limit: 78, comparator: ">=", unit: "degC",
+      severity: "high",  on_violation: "escalate", note: "downstream spec" }
+operational_windows:
+  - { id: "cleaning_window", rule: "planned maintenance slots only", calendar_ref: "CMMS:HX-101" }
+safety:
+  - { id: "isolate_before_clean", rule: "HX-101 isolated and depressurised before any cleaning action",
+      severity: "critical", on_violation: "block" }

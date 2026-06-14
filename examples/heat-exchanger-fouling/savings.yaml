@@ -1,0 +1,15 @@
+# Energy penalty from degraded heat transfer vs. clean baseline, net of cleaning cost.
+baseline:
+  U_clean_W_m2K: 850
+  energy_price_EUR_per_kWh: 0.11
+  cleaning_cost_EUR: 4200          # labour + chemicals + downtime
+formulae:
+  energy_penalty_kW: "duty_clean - duty_actual"   # extra utility duty needed due to fouling
+  penalty_cost_EUR_per_day: "energy_penalty_kW * 24 * energy_price_EUR_per_kWh"
+net_saving:
+  description: >
+    Net saving of cleaning at the recommended date vs. the fixed 90-day schedule:
+    avoided energy penalty over the deferred/advanced days, minus any change in cleaning
+    frequency cost.
+  expression: "sum(penalty_cost_EUR_per_day over avoided_high_fouling_days) - delta_cleaning_cost_EUR"
+  unit: "EUR"

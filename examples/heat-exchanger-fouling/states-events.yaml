@@ -1,0 +1,9 @@
+states:
+  - { id: "in_service", entry: "F_hot > 500 and F_cold > 500" }
+  - { id: "bypass",     entry: "F_cold < 100" }
+  - { id: "cleaning",   entry: "F_hot < 100 and F_cold < 100" }
+  - { id: "startup",    entry: "F_hot rising and T_hot_out < T_hot_in - 5" }
+events:
+  - { id: "cleaning_performed",        detect: "transition cleaning -> in_service", effect: "Rf resets toward 0" }
+  - { id: "fouling_threshold_crossed", detect: "Rf >= constraints.Rf_max" }
+  - { id: "fault",                     detect: "U_overall < 0 or dP_shell > constraints.dP_max * 1.2" }

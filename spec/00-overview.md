@@ -2,6 +2,9 @@
 
 **Version 0.1.0 (draft)**
 
+> For the first-principles rationale (why this layer is missing and why one general
+> framework is possible), see [`../CONCEPT.md`](../CONCEPT.md).
+
 ## 1. Purpose
 
 OIPF (Operational Intelligence Packaging Format) defines how a single

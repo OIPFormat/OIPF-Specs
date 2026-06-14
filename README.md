@@ -3,8 +3,8 @@
 **Operations-as-Code for industrial plants.**
 
 OIPF is an open packaging format for deploying operational-intelligence use cases —
-fouling and cleaning optimisation, energy-loss reduction, predictive maintenance,
-throughput and yield optimisation — across industrial sites as **versioned, testable,
+predictive maintenance, energy-loss reduction, quality-drift detection, cleaning and
+fouling optimisation, and the like — across operational sites as **versioned, testable,
 auditable packages**. *Deploy once, configure per site, run anywhere.*
 
 OIPF is a domain-general sibling of **UAPF** (algorithm packaging) and **MCPF** (agent
@@ -19,18 +19,18 @@ needed to run a model on a real plant and replicate it across sites.
 
 ## The problem OIPF addresses
 
-Process and utility plants lose 15–25% of operating value to avoidable inefficiency —
-over-cleaning, undetected fouling, suboptimal operating conditions, siloed local
-optimisation. This is **not a data-shortage problem**: plants already stream continuous
-data from thousands of sensors. The value is trapped because:
+A trained model is already portable — you can copy the file. What is *not* portable is
+everything a model needs in order to act responsibly inside a live operational system:
+the **meaning** of each signal, the **bounds** it must respect, the **governance** of who
+approves an action, and the **truth** of whether the action helped. Today these are rebuilt
+by hand on every deployment, so the capability never compounds and each site becomes a
+bespoke project.
 
-- **integration is slow** — every historian, SCADA and tag convention is different;
-- **contextualisation is poor** — raw tags carry no shared meaning;
-- **models are bespoke** — each site rebuilds from scratch;
-- **replication takes months** — nothing transfers plant-to-plant.
-
-Industrial AI deployments therefore tend to collapse into bespoke consulting. OIPF exists
-to make a deployment **a portable artifact instead of a project**.
+The bottleneck is not model accuracy — it is that *judgment-in-context has no portable
+form*. OIPF gives it one. This is possible because, across domains, the **structure of an
+operational decision is invariant** (observe → infer → check constraints → recommend →
+human decides → act → record → learn); only the physics, tags and models differ. See
+**[CONCEPT.md](CONCEPT.md)** for the full first-principles derivation.
 
 ## What OIPF is — and is not
 

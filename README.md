@@ -22,6 +22,8 @@ executable and auditable, OIPF makes a *governed operational decision* portable.
 📄 **Start with [`CONCEPT.md`](CONCEPT.md)** for the first-principles rationale, then the
 [`spec/`](spec) for the architecture and components.
 
+🖥️ **Interactive demo:** [`demo/`](demo) — technical *As-is vs With-OIPF* architecture + the executive decision loop, animated.
+
 ---
 
 ## Why OIPF exists

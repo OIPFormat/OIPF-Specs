@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OIPF — System Architecture</title>
+<style>
+  :root{
+    --bg:#0a0e15;--panel:#111824;--panel2:#161f2e;--border:rgba(255,255,255,.08);
+    --teal:#14b8a6;--teal-deep:#0d9488;--teal-dim:rgba(20,184,166,.12);
+    --amber:#f59e0b;--amber-dim:rgba(245,158,11,.14);--violet:#a78bfa;--blue:#38bdf8;
+    --text:#e7edf4;--text2:#aeb9c8;--muted:#7e8b9c;
+    --mono:'SF Mono','JetBrains Mono',Menlo,Consolas,monospace;
+    --sans:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;
+    background-image:radial-gradient(900px 500px at 75% -10%,rgba(20,184,166,.06),transparent)}
+  .header{border-bottom:1px solid var(--border);background:rgba(10,14,21,.88);backdrop-filter:blur(12px);position:sticky;top:0;z-index:20}
+  .hi{max-width:1240px;margin:0 auto;padding:13px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .logo{width:38px;height:38px;border-radius:10px;background:var(--teal-deep);display:flex;align-items:center;justify-content:center}
+  .brand h1{font-size:18px;font-weight:800}.brand .sub{font-size:11px;color:var(--muted)}
+  .viewtoggle{display:flex;gap:4px;margin-left:8px}
+  .vbtn{background:transparent;border:1px solid transparent;color:var(--text2);padding:8px 15px;border-radius:9px;
+    font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;display:flex;align-items:center;gap:7px}
+  .vbtn svg{width:15px;height:15px}
+  .vbtn:hover{background:var(--panel2);color:var(--text)}
+  .vbtn.active{background:var(--teal-dim);color:var(--teal);border-color:rgba(20,184,166,.35)}
+  .ctrls{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .btn{background:var(--teal-deep);color:#fff;border:0;padding:8px 14px;border-radius:9px;font-size:12.5px;font-weight:700;
+    cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;transition:.15s}
+  .btn:hover{background:var(--teal)}
+  .seg{display:flex;background:var(--panel2);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .seg button{background:transparent;border:0;color:var(--muted);padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+  .seg button.active{background:var(--teal-deep);color:#fff}
+  .seg button.amber.active{background:var(--amber);color:#1a1305}
+  main{max-width:1240px;margin:0 auto;padding:16px 22px 50px}
+  .view{display:none}.view.active{display:block}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin:2px 0 10px;font-size:11.5px;color:var(--text2)}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .sw{width:22px;height:0;border-top:3px solid;border-radius:3px}
+  .sw.d{border-top-style:dashed}
+  .canvas{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:6px;overflow:hidden}
+  svg{width:100%;height:auto;display:block}
+  .verdict{display:flex;gap:13px;align-items:center;border-radius:12px;padding:14px 18px;margin-top:14px;border:1px solid;font-size:13px}
+  .verdict.asis{background:var(--amber-dim);border-color:rgba(245,158,11,.3)}
+  .verdict.oipf{background:var(--teal-dim);border-color:rgba(20,184,166,.3)}
+  .verdict b{color:var(--text)}
+  .vi{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .verdict.asis .vi{background:rgba(245,158,11,.18);color:var(--amber)}
+  .verdict.oipf .vi{background:var(--teal-dim);color:var(--teal)}
+  /* svg shared */
+  .bandlbl{fill:var(--muted);font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+  .bx rect{rx:9}
+  .bxt{fill:var(--text);font-size:12.5px;font-weight:700}
+  .bxs{fill:var(--text2);font-size:9.5px;font-family:var(--mono)}
+  .plbl{fill:var(--muted);font-size:9px;font-family:var(--mono)}
+  body.tech-min .plbl{display:none}
+  .desc{margin-top:14px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 18px;min-height:60px}
+  .desc .dt{font-size:13px;font-weight:700;color:var(--teal);margin-bottom:4px;display:flex;align-items:center;gap:9px}
+  .desc .dt .pill{font-size:10px;font-family:var(--mono);background:var(--teal-dim);color:var(--teal);padding:2px 8px;border-radius:20px}
+  .desc .dd{font-size:12.5px;color:var(--text2)}
+  .node{cursor:pointer}.node circle{fill:var(--panel2);stroke:var(--border);stroke-width:1.5;transition:.18s}
+  .node:hover circle,.node.hot circle{stroke:var(--teal);fill:#16303a}
+  .node .num{fill:var(--teal);font-family:var(--mono);font-size:15px;font-weight:700;text-anchor:middle}
+  .nlabel{fill:var(--text);font-size:13px;font-weight:700;text-anchor:middle}
+  .ntech{fill:var(--muted);font-size:10px;font-family:var(--mono);text-anchor:middle;display:none}
+  body.detail-tech .ntech{display:block}
+  .footer{max-width:1240px;margin:0 auto;padding:0 22px 40px;font-size:11.5px;color:var(--muted)}
+  .footer a{color:var(--teal);text-decoration:none}
+</style>
+</head>
+<body class="detail-clevel">
+<header class="header"><div class="hi">
+  <div class="logo"><svg width="24" height="24" viewBox="0 0 256 256"><g stroke="#fff" stroke-width="14" stroke-linecap="round"><line x1="96" y1="98" x2="158" y2="128"/><line x1="96" y1="158" x2="158" y2="128"/></g><circle cx="96" cy="98" r="16" fill="#fff"/><circle cx="96" cy="158" r="16" fill="#fff"/><circle cx="160" cy="128" r="24" fill="#fff"/></svg></div>
+  <div class="brand"><h1>OIPF — System Architecture</h1><div class="sub">technical · as-is vs with-OIPF</div></div>
+  <div class="viewtoggle">
+    <button class="vbtn active" id="vb-tech" onclick="setView('tech')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Technical</button>
+    <button class="vbtn" id="vb-exec" onclick="setView('exec')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Executive</button>
+  </div>
+  <div class="ctrls" id="ctrls-tech">
+    <div class="seg"><button class="amber active" id="st-asis" onclick="setState('asis')">As-is</button><button id="st-oipf" onclick="setState('oipf')">With OIPF</button></div>
+    <button class="btn" onclick="togglePlay('svgTech',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg><span>Pause</span></button>
+  </div>
+  <div class="ctrls" id="ctrls-exec" style="display:none">
+    <div class="seg"><button class="active" onclick="setDetail('clevel',this)">Plain</button><button onclick="setDetail('tech',this)">Objects</button></div>
+    <button class="btn" onclick="togglePlay('svgExec',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg><span>Pause</span></button>
+  </div>
+</div></header>
+
+<main>
+  <!-- ===================== TECHNICAL ===================== -->
+  <section class="view active" id="view-tech">
+    <div class="legend">
+      <span><span class="sw" style="border-color:var(--teal)"></span>OIPF-routed flow (normalised, governed)</span>
+      <span><span class="sw d" style="border-color:var(--amber)"></span>Bespoke point-to-point integration</span>
+      <span><span class="sw" style="border-color:#3a4862"></span>Field → control → data ingest (unchanged)</span>
+    </div>
+    <div class="canvas"><svg id="svgTech" viewBox="0 0 1240 760" aria-label="OIPF technical architecture"></svg></div>
+    <div class="verdict asis" id="verdict">
+      <div class="vi"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <div id="verdict-txt"></div>
+    </div>
+  </section>
+
+  <!-- ===================== EXECUTIVE ===================== -->
+  <section class="view" id="view-exec">
+    <div class="legend">
+      <span><span class="sw" style="border-color:var(--teal)"></span>Forward flow — signals → decision → action</span>
+      <span><span class="sw d" style="border-color:var(--amber)"></span>Feedback — measured outcome flows back</span>
+    </div>
+    <div class="canvas"><svg id="svgExec" viewBox="0 0 1120 660" aria-label="OIPF decision loop"></svg></div>
+    <div class="desc" id="descExec">
+      <div class="dt">The OIPF intelligence loop <span class="pill">hover a stage</span></div>
+      <div class="dd">Existing systems feed raw signals in on the left. OIPF gives them meaning, runs the model under a contract, checks constraints, recommends, lets a human decide, acts on the asset, records the signed outcome — and the <b style="color:var(--amber)">measured result flows back</b> to recalibrate the model.</div>
+    </div>
+  </section>
+</main>
+<footer class="footer">OIPF — Operational Intelligence Packaging Format · the OIPF runtime is a software layer above OPC&nbsp;UA / ISA-95 / ISA-88 / MQTT / historians — it replaces none of them · <a href="https://github.com/OIPFormat/OIPF-Specs">OIPF-Specs</a></footer>
+
+<script>
+/* ============================ TECHNICAL VIEW ============================ */
+const NS="http://www.w3.org/2000/svg";
+/* boxes: id,x,y,w,h,label,sub,kind */
+const BOX=[
+ // field
+ ["f1",150,64,210,58,"Sensors & transmitters","flow · pressure · level · temp","field"],
+ ["f2",400,64,210,58,"Analyzers","turbidity · gas · quality","field"],
+ ["f3",650,64,210,58,"Actuators & drives","valves · VFDs","field"],
+ // control
+ ["c1",170,156,190,58,"PLC / RTU","IEC 61131","ctrl"],
+ ["c2",430,156,150,58,"DCS","",  "ctrl"],
+ ["c3",650,156,200,58,"SCADA","",  "ctrl"],
+ // data
+ ["d1",150,250,180,58,"Edge gateway","",  "data"],
+ ["d2",360,250,190,58,"MQTT broker","Sparkplug B","data"],
+ ["d3",580,250,180,58,"Historian","PI / Influx","data"],
+ ["d4",790,250,210,58,"Lakehouse / TSDB","Delta · Parquet","data"],
+ // consumers
+ ["intel",150,486,250,66,"Model servers","physics + ML · optimiser","intel"],
+ ["biz",430,486,330,66,"Business systems","MES · CMMS · ERP · LIMS","biz"],
+ ["ops",790,486,250,66,"Operators / HMI","dashboards · work orders","ops"]
+];
+const KCOL={field:"#38bdf8",ctrl:"#a78bfa",data:"#22d3ee",intel:"#14b8a6",biz:"#f59e0b",ops:"#34d399"};
+/* OIPF band: wide box with compartments */
+const OIPF={x:150,y:342,w:890,h:80,parts:["Connector adapters","Plant graph","Model-contract registry","Workflow engine","Audit & outcome ledger","Package registry"]};
+const TRUST={x:1062,y:156,w:128,h:266};
+function bx(id){const b=BOX.find(x=>x[0]===id);return {x:b[1],y:b[2],w:b[3],h:b[4],cx:b[1]+b[3]/2,top:b[2],bot:b[2]+b[4]};}
+function vpath(a,b){const ay=a.bot,by=b.top,m=(ay+by)/2;return `M${a.cx} ${ay} C ${a.cx} ${m}, ${b.cx} ${m}, ${b.cx} ${by}`;}
+/* shared ingest links (both states) */
+const SHARED=[["f1","c1"],["f2","c2"],["f3","c3"],["c1","d1"],["c2","d3"],["c3","d3"],["c3","d2"]];
+/* as-is: data/control -> consumers directly (the tangle) */
+const ASIS=[["d3","intel"],["d3","biz"],["d3","ops"],["d4","intel"],["c3","ops"],["c3","biz"],["d2","intel"]];
+/* with-oipf: data -> OIPF, OIPF -> consumers */
+function oipfTop(cx){return {cx:cx,top:OIPF.y};}
+function oipfBot(cx){return {cx:cx,bot:OIPF.y+OIPF.h};}
+
+function P(tag,attrs,inner){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(inner)e.innerHTML=inner;return e;}
+function dotStream(g,d,color,dur){for(let k=0;k<2;k++){const c=P("circle",{r:4,fill:color});const m=P("animateMotion",{dur:dur+"s",begin:(k*dur/2).toFixed(2)+"s",repeatCount:"indefinite",path:d});c.appendChild(m);g.appendChild(c);}}
+
+function buildTech(){
+ const s=document.getElementById("svgTech");s.innerHTML="";
+ // band labels
+ const bands=[["FIELD",95],["CONTROL",187],["EDGE & DATA",281],["OIPF RUNTIME",386],["CONSUMERS",521]];
+ bands.forEach(b=>s.appendChild(P("text",{class:"bandlbl",x:14,y:b[1]},b[0])));
+ // shared links group (drawn first, behind)
+ const gShared=P("g",{});
+ SHARED.forEach(l=>{const d=vpath(bx(l[0]),bx(l[1]));gShared.appendChild(P("path",{d:d,fill:"none",stroke:"#33415a","stroke-width":2}));dotStream(gShared,d,"#5b6b7e",2.6);});
+ s.appendChild(gShared);
+ s.appendChild(P("text",{class:"plbl",x:150,y:147},"4–20 mA · HART · Modbus"));
+ s.appendChild(P("text",{class:"plbl",x:150,y:241},"OPC UA · Modbus TCP"));
+
+ // AS-IS group
+ const gA=P("g",{id:"asisG"});
+ ASIS.forEach(l=>{const d=vpath(bx(l[0]),bx(l[1]));gA.appendChild(P("path",{d:d,fill:"none",stroke:"var(--amber)","stroke-width":2,"stroke-dasharray":"6 5",opacity:.85}));dotStream(gA,d,"var(--amber)",3.0);});
+ gA.appendChild(P("text",{class:"plbl",x:560,y:415,fill:"var(--amber)"},"bespoke point-to-point · mixed protocols · per site"));
+ s.appendChild(gA);
+
+ // OIPF band + WITH-OIPF group
+ const gO=P("g",{id:"oipfG"});
+ // band rect
+ gO.appendChild(P("rect",{x:OIPF.x,y:OIPF.y,width:OIPF.w,height:OIPF.h,rx:12,fill:"rgba(20,184,166,.10)",stroke:"rgba(20,184,166,.45)","stroke-width":1.5}));
+ const pw=OIPF.w/OIPF.parts.length;
+ OIPF.parts.forEach((p,i)=>{const px=OIPF.x+i*pw;
+   if(i>0)gO.appendChild(P("line",{x1:px,y1:OIPF.y+10,x2:px,y2:OIPF.y+OIPF.h-10,stroke:"rgba(20,184,166,.25)"}));
+   const t=P("text",{x:px+pw/2,y:OIPF.y+OIPF.h/2+3,"text-anchor":"middle",fill:"var(--teal)","font-size":10.5,"font-weight":700});
+   // wrap into 2 lines
+   const words=p.split(" ");const mid=Math.ceil(words.length/2);
+   t.appendChild(P("tspan",{x:px+pw/2,dy:"-3"},words.slice(0,mid).join(" ")));
+   t.appendChild(P("tspan",{x:px+pw/2,dy:"14"},words.slice(mid).join(" ")));
+   gO.appendChild(t);});
+ gO.appendChild(P("text",{class:"bandlbl",x:OIPF.x+4,y:OIPF.y-8,fill:"var(--teal)"},"OIPF RUNTIME — one connector layer, overlay per site"));
+ // data -> OIPF (converge into connector compartment area)
+ const connCx=OIPF.x+pw*0.5;
+ ["d1","d2","d3","d4"].forEach(id=>{const a=bx(id);const d=`M${a.cx} ${a.bot} C ${a.cx} ${(a.bot+OIPF.y)/2}, ${connCx} ${(a.bot+OIPF.y)/2}, ${connCx} ${OIPF.y}`;gO.appendChild(P("path",{d:d,fill:"none",stroke:"var(--teal)","stroke-width":2,opacity:.8}));dotStream(gO,d,"var(--teal)",2.4);});
+ gO.appendChild(P("text",{class:"plbl",x:OIPF.x,y:OIPF.y-22,fill:"var(--teal)"},"OPC UA · MQTT/Sparkplug · SQL → canonical"));
+ // OIPF -> consumers
+ const outs=[["intel",OIPF.x+pw*2.5,"model-contract API"],["biz",OIPF.x+pw*4.0,"REST · SQL"],["ops",OIPF.x+pw*4.9,"recommendations · work orders"]];
+ outs.forEach(o=>{const b=bx(o[0]);const sx=o[1],sy=OIPF.y+OIPF.h;const d=`M${sx} ${sy} C ${sx} ${(sy+b.top)/2}, ${b.cx} ${(sy+b.top)/2}, ${b.cx} ${b.top}`;gO.appendChild(P("path",{d:d,fill:"none",stroke:"var(--teal)","stroke-width":2,opacity:.8}));dotStream(gO,d,"var(--teal)",2.6);gO.appendChild(P("text",{class:"plbl",x:b.cx-30,y:b.top-6,fill:"var(--teal)"},o[2]));});
+ // trust -> OIPF
+ gO.appendChild(P("path",{d:`M${TRUST.x} ${TRUST.y+TRUST.h/2} C ${TRUST.x-20} ${OIPF.y+20}, ${OIPF.x+OIPF.w+10} ${OIPF.y+20}, ${OIPF.x+OIPF.w} ${OIPF.y+25}`,fill:"none",stroke:"var(--violet)","stroke-width":1.8,"stroke-dasharray":"4 4",opacity:.7}));
+ s.appendChild(gO);
+
+ // boxes (drawn on top)
+ BOX.forEach(b=>{const g=P("g",{class:"bx"});const col=KCOL[b[7]]||"#888";
+   const hasSub=b[6]&&b[6].length>0;
+   g.appendChild(P("rect",{x:b[1],y:b[2],width:b[3],height:b[4],rx:9,fill:"var(--panel2)",stroke:"var(--border)"}));
+   g.appendChild(P("rect",{x:b[1],y:b[2],width:4,height:b[4],rx:2,fill:col}));
+   const T=P("text",{class:"bxt",x:b[1]+16,y:b[2]+(hasSub?24:34)});T.textContent=b[5];g.appendChild(T);
+   if(hasSub){const Sx=P("text",{class:"bxs",x:b[1]+16,y:b[2]+42});Sx.textContent=b[6];g.appendChild(Sx);}
+   s.appendChild(g);});
+ // trust rail
+ const gt=P("g",{});
+ gt.appendChild(P("rect",{x:TRUST.x,y:TRUST.y,width:TRUST.w,height:TRUST.h,rx:11,fill:"var(--panel2)",stroke:"rgba(167,139,250,.4)"}));
+ gt.appendChild(P("rect",{x:TRUST.x,y:TRUST.y,width:4,height:TRUST.h,rx:2,fill:"var(--violet)"}));
+ const tlines=["Identity & trust","","DID / VC","(VeriDocs)","","signed audit","RBAC"];
+ tlines.forEach((ln,i)=>{gt.appendChild(P("text",{x:TRUST.x+TRUST.w/2,y:TRUST.y+34+i*26,"text-anchor":"middle",fill:i===0?"var(--violet)":"var(--text2)","font-size":i===0?12:11,"font-weight":i===0?700:500,"font-family":i>1?"var(--mono)":"var(--sans)"},ln));});
+ s.appendChild(gt);
+}
+const VERDICT={
+ asis:'<b>Every consumer is wired straight to the sources.</b> Each is a bespoke point-to-point integration with mixed protocols, no shared context and no audit trail — and the whole tangle is rebuilt for the next site.',
+ oipf:'<b>One connector layer normalises protocols once.</b> Every model, business system and operator reads context and writes signed outcomes through the OIPF runtime. A new site is an overlay, not a rewrite.'
+};
+let STATE="asis";
+function setState(st){
+ STATE=st;
+ document.getElementById("st-asis").classList.toggle("active",st==="asis");
+ document.getElementById("st-oipf").classList.toggle("active",st==="oipf");
+ document.getElementById("asisG").style.display = st==="asis"?"":"none";
+ document.getElementById("oipfG").style.display = st==="oipf"?"":"none";
+ const v=document.getElementById("verdict");v.className="verdict "+st;
+ document.getElementById("verdict-txt").innerHTML=VERDICT[st];
+}
+
+/* ============================ EXECUTIVE LOOP VIEW ============================ */
+const NODES=[
+ {x:412,y:330,n:'1',t:'Observe',tech:'tag-map · asset-graph',c:'Plant Graph + Semantics',d:'Raw signals are given meaning — which asset, which variable, what state.'},
+ {x:461,y:211,n:'2',t:'Infer',tech:'model-contract',c:'Model Contract',d:'The model runs behind a declared contract — inputs, outputs, validity, confidence.'},
+ {x:580,y:162,n:'3',t:'Check',tech:'constraints',c:'Constraints',d:'Any action is tested against safety, quality and operational limits first.'},
+ {x:699,y:211,n:'4',t:'Recommend',tech:'decision',c:'Decision schema',d:'A recommendation: action, reason, confidence and € impact.'},
+ {x:748,y:330,n:'5',t:'Approve',tech:'workflow · human',c:'Agentic Workflow (HITL)',d:'A human stays accountable — approve, modify or reject.'},
+ {x:699,y:449,n:'6',t:'Act',tech:'work order / setpoint',c:'Workflow + Runtime',d:'The approved decision becomes a real action.'},
+ {x:580,y:498,n:'7',t:'Record',tech:'outcome ledger',c:'Audit & Governance',d:'Decision and measured result are recorded and signed.'},
+ {x:461,y:449,n:'8',t:'Learn',tech:'feedback',c:'Outcome Feedback',d:'The result recalibrates the model — the capability compounds.'}
+];
+function buildExec(){
+ const s=document.getElementById("svgExec");
+ s.innerHTML=`
+  <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#5b6b7e"/></marker>
+  <marker id="arA" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#f59e0b"/></marker></defs>
+  <rect x="40" y="250" width="210" height="160" rx="14" fill="#161f2e" stroke="rgba(255,255,255,.08)"/>
+  <text x="58" y="276" fill="#e7edf4" font-size="12.5" font-weight="700">Existing systems</text>
+  <text x="58" y="300" fill="#aeb9c8" font-size="10.5">SCADA · historian · MES · ERP</text>
+  <text x="58" y="320" fill="#7e8b9c" font-size="10.5">connector · data foundation</text>
+  <path d="M250 330 L378 330" stroke="#3a4862" stroke-width="2.5" fill="none" marker-end="url(#ar)"/>
+  <g class="ffwd"></g>
+  <circle cx="580" cy="330" r="168" fill="none" stroke="rgba(20,184,166,.22)" stroke-width="2" stroke-dasharray="2 8"/>
+  <circle cx="580" cy="330" r="118" fill="rgba(20,184,166,.04)" stroke="rgba(20,184,166,.12)"/>
+  <text x="580" y="300" text-anchor="middle" fill="#7e8b9c" font-size="10.5" font-weight="700" letter-spacing="1.5">OIPF RUNTIME</text>
+  <g transform="translate(558,316)"><svg width="44" height="44" viewBox="0 0 256 256"><rect x="16" y="16" width="224" height="224" rx="50" fill="#0d9488"/><g stroke="#fff" stroke-width="13" stroke-linecap="round"><line x1="96" y1="98" x2="158" y2="128"/><line x1="96" y1="158" x2="158" y2="128"/></g><circle cx="96" cy="98" r="15" fill="#fff"/><circle cx="96" cy="158" r="15" fill="#fff"/><circle cx="160" cy="128" r="23" fill="#fff"/></svg></g>
+  <text x="580" y="372" text-anchor="middle" fill="#14b8a6" font-size="10.5" font-weight="700">Operations-as-Code</text>
+  <g id="orbit">
+   <circle cx="748" cy="330" r="5" fill="#14b8a6"/><circle cx="664" cy="475" r="5" fill="#14b8a6"/><circle cx="496" cy="475" r="5" fill="#14b8a6"/>
+   <circle cx="412" cy="330" r="5" fill="#14b8a6"/><circle cx="496" cy="185" r="5" fill="#14b8a6"/><circle cx="664" cy="185" r="5" fill="#14b8a6"/>
+   <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 580 330" to="360 580 330" dur="16s" repeatCount="indefinite"/>
+  </g>
+  <g id="enodes"></g>
+  <rect x="900" y="276" width="180" height="108" rx="14" fill="#161f2e" stroke="rgba(255,255,255,.08)"/>
+  <text x="918" y="304" fill="#e7edf4" font-size="12.5" font-weight="700">Physical asset</text>
+  <text x="918" y="326" fill="#aeb9c8" font-size="10.5">action applied · result measured</text>
+  <path d="M700 452 C 800 470, 860 410, 902 360" stroke="#3a4862" stroke-width="2.5" fill="none" marker-end="url(#ar)"/>
+  <text x="772" y="430" fill="#aeb9c8" font-size="11">action</text>
+  <g class="fact"></g>
+  <path d="M900 372 C 800 470, 700 530, 612 500" stroke="#f59e0b" stroke-width="2.5" fill="none" stroke-dasharray="6 5" marker-end="url(#arA)"/>
+  <text x="744" y="540" fill="#f59e0b" font-size="11" font-weight="700">measured outcome → feedback</text>
+  <g class="ffb"></g>`;
+ const g=document.getElementById("enodes");let h='';
+ NODES.forEach((nd,i)=>{const ly=nd.y>330?nd.y+58:nd.y-44;const ly2=ly+(nd.y>330?15:-15);
+  h+=`<g class="node" data-i="${i}" onmouseenter="hot(${i})"><circle cx="${nd.x}" cy="${nd.y}" r="30"/><text class="num" x="${nd.x}" y="${nd.y+5}">${nd.n}</text><text class="nlabel" x="${nd.x}" y="${ly}">${nd.t}</text><text class="ntech" x="${nd.x}" y="${ly2}">${nd.tech}</text></g>`;});
+ g.innerHTML=h;
+ estream(".ffwd","M250 330 L378 330","#14b8a6",2.4);
+ estream(".fact","M700 452 C 800 470, 860 410, 902 360","#14b8a6",2.6);
+ estream(".ffb","M900 372 C 800 470, 700 530, 612 500","#f59e0b",3.0);
+}
+function estream(sel,path,color,dur){const host=document.querySelector(sel);let s='';for(let k=0;k<3;k++)s+=`<circle r="4.5" fill="${color}"><animateMotion dur="${dur}s" begin="${(k*dur/3).toFixed(2)}s" repeatCount="indefinite" path="${path}"/></circle>`;host.innerHTML=s;}
+function hot(i){document.querySelectorAll('.node').forEach(n=>n.classList.toggle('hot',+n.dataset.i===i));const nd=NODES[i];
+ document.getElementById('descExec').innerHTML=`<div class="dt">${nd.n}. ${nd.t} <span class="pill">${nd.c}</span></div><div class="dd">${nd.d}</div>`;}
+
+/* ============================ shared controls ============================ */
+function setView(v){
+ document.getElementById("vb-tech").classList.toggle("active",v==="tech");
+ document.getElementById("vb-exec").classList.toggle("active",v==="exec");
+ document.getElementById("view-tech").classList.toggle("active",v==="tech");
+ document.getElementById("view-exec").classList.toggle("active",v==="exec");
+ document.getElementById("ctrls-tech").style.display=v==="tech"?"":"none";
+ document.getElementById("ctrls-exec").style.display=v==="exec"?"":"none";
+}
+function togglePlay(svgId,btn){const svg=document.getElementById(svgId);
+ if(btn.dataset.p==="1"){svg.unpauseAnimations();btn.dataset.p="0";btn.querySelector('span').textContent="Pause";btn.querySelector('svg').innerHTML='<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>';}
+ else{svg.pauseAnimations();btn.dataset.p="1";btn.querySelector('span').textContent="Play";btn.querySelector('svg').innerHTML='<polygon points="6 4 20 12 6 20 6 4"/>';}}
+function setDetail(m,btn){document.body.className="detail-"+m;btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+
+/* init */
+buildTech();setState("asis");
+buildExec();
+</script>
+</body>
+</html>

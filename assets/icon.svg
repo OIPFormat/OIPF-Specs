@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="OIPF logo">
+  <rect x="16" y="16" width="224" height="224" rx="50" fill="#0D9488"/>
+  <g stroke="#FFFFFF" stroke-width="11" stroke-linecap="round">
+    <line x1="96" y1="98" x2="158" y2="128"/>
+    <line x1="96" y1="158" x2="158" y2="128"/>
+  </g>
+  <circle cx="96" cy="98" r="14" fill="#FFFFFF"/>
+  <circle cx="96" cy="158" r="14" fill="#FFFFFF"/>
+  <circle cx="160" cy="128" r="21" fill="#FFFFFF"/>
+</svg>
